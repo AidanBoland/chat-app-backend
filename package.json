@@ -1,0 +1,12 @@
+{
+  "name": "chat-app-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/server": "^4.3.0",
+    "graphql": "^16.6.0",
+    "prisma": "^4.8.1",
+    "typescript": "^4.9.4"
+  }
+}
