@@ -1,0 +1,27 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+    id Int @id @default(autoincrement()) @unique
+    email String @unique
+    displayName String
+    displayColour String?
+    password String?
+    messages Message[]
+}
+
+model Message {
+    sender User @relation(fields: [senderId], references: [id])
+    senderId Int
+    id Int @id @unique @default(autoincrement())
+    content String
+}

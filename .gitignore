@@ -5,5 +5,8 @@ node_modules
 yarn-error.log
 
 .env.local
+.env
 
 *.sql
+
+dist
