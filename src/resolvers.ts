@@ -27,8 +27,6 @@ export const resolvers = {
                     content: content.content,
                 },
             });
-
-            console.log(result);
         },
     },
 };
