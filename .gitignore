@@ -10,3 +10,5 @@ yarn-error.log
 *.sql
 
 dist
+
+dev.db
