@@ -1,4 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { PubSub } from 'graphql-subscriptions';
+
+const pubsub = new PubSub();
 
 export const typeDefs = `#graphql
     type Message {
@@ -49,16 +52,38 @@ export const resolvers = {
             return messages;
         },
     },
+
     Mutation: {
         async createMessage(senderId, content) {
-            console.log(content);
-
-            const result = await prisma.message.create({
+            await prisma.message.create({
                 data: {
                     senderId: content.senderId,
                     content: content.content,
                 },
             });
+
+            pubsub.publish('MESSAGE_SENT', {
+                newMessage: {
+                    senderId: senderId,
+                    sender: await prisma.user.findUnique({ where: { id: senderId } }),
+                    id: await prisma.message.findMany({
+                        take: 1,
+                        orderBy: {
+                            id: 'desc',
+                        },
+                        select: {
+                            id: true,
+                        },
+                    }),
+                    content: content,
+                },
+            });
+        },
+    },
+
+    Subscription: {
+        newMessage: {
+            subscribe: () => pubsub.asyncIterator(['MESSAGE_SENT']),
         },
     },
 };
