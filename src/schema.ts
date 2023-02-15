@@ -60,14 +60,11 @@ export const resolvers = {
         },
 
         checkForUser: async (parent, args, contextValue, info) => {
-            console.log(args);
             let userFound = await prisma.user.findUnique({
                 where: {
                     email: args.email,
                 },
             });
-
-            console.log(userFound);
 
             if (!userFound) {
                 return { user: null };
@@ -95,12 +92,6 @@ export const resolvers = {
                     id: true,
                 },
             });
-
-            console.log(
-                `NEW MESSAGE /n id: ${databaseId.id} /n content: ${content.content}, sender: ${await prisma.user.findFirst({
-                    where: { id: content.senderId },
-                })}`
-            );
 
             pubsub.publish('MESSAGE_SENT', {
                 newMessage: {
