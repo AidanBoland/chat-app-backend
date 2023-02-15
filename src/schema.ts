@@ -21,6 +21,9 @@ export const typeDefs = `#graphql
 
     type Query {
         getMessages: [Message]
+        checkForUser(
+            email: String!
+        ): User
     }
 
     type Mutation {
@@ -28,6 +31,10 @@ export const typeDefs = `#graphql
             senderId: Int!
             content: String!
         ): Message
+
+        createUser (
+            email: String!
+        ): User
     }
 
     type Subscription {
@@ -51,6 +58,23 @@ export const resolvers = {
             });
             return messages;
         },
+
+        checkForUser: async (parent, args, contextValue, info) => {
+            console.log(args);
+            let userFound = await prisma.user.findUnique({
+                where: {
+                    email: args.email,
+                },
+            });
+
+            console.log(userFound);
+
+            if (!userFound) {
+                return { user: null };
+            }
+
+            return userFound;
+        },
     },
 
     Mutation: {
@@ -62,22 +86,32 @@ export const resolvers = {
                 },
             });
 
-            pubsub.publish('MESSAGE_SENT', {
-                newMessage: {
-                    senderId: senderId,
-                    sender: await prisma.user.findUnique({ where: { id: senderId } }),
-                    id: await prisma.message.findMany({
-                        take: 1,
-                        orderBy: {
-                            id: 'desc',
-                        },
-                        select: {
-                            id: true,
-                        },
-                    }),
-                    content: content,
+            const databaseId = await prisma.message.findFirst({
+                take: 1,
+                orderBy: {
+                    id: 'desc',
+                },
+                select: {
+                    id: true,
                 },
             });
+
+            console.log(
+                `NEW MESSAGE /n id: ${databaseId.id} /n content: ${content.content}, sender: ${await prisma.user.findFirst({
+                    where: { id: content.senderId },
+                })}`
+            );
+
+            pubsub.publish('MESSAGE_SENT', {
+                newMessage: {
+                    __typename: 'Message',
+                    id: databaseId.id,
+                    content: content.content,
+                    sender: await prisma.user.findFirst({ where: { id: content.senderId } }),
+                },
+            });
+
+            prisma.$disconnect;
         },
     },
 

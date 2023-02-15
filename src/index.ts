@@ -19,7 +19,7 @@ const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 const wsServer = new WebSocketServer({
     server: httpServer,
-    path: '/gqlws',
+    path: '/gql/ws',
 });
 
 const serverCleanup = useServer({ schema }, wsServer);
@@ -45,7 +45,7 @@ const server = new ApolloServer({
 await server.start();
 
 app.use(
-    '/gqlapi',
+    '/gql/api',
     cors<cors.CorsRequest>(),
     bodyParser.json(),
     expressMiddleware(server, {
