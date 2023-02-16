@@ -61,7 +61,7 @@ export const resolvers = {
             return messages;
         },
 
-        checkForUser: async (parent, args, contextValue, info) => {
+        checkForUser: async (_parent, args, _contextValue, _info) => {
             let userFound = await prisma.user.findUnique({
                 where: {
                     email: args.email,
@@ -77,11 +77,11 @@ export const resolvers = {
     },
 
     Mutation: {
-        async createMessage(senderId, content) {
+        async createMessage(_parent, args, _contextValue, _info) {
             await prisma.message.create({
                 data: {
-                    senderId: content.senderId,
-                    content: content.content,
+                    senderId: args.senderId,
+                    content: args.content,
                 },
             });
 
@@ -99,27 +99,27 @@ export const resolvers = {
                 newMessage: {
                     __typename: 'Message',
                     id: databaseId.id,
-                    content: content.content,
-                    sender: await prisma.user.findFirst({ where: { id: content.senderId } }),
+                    content: args.content,
+                    sender: await prisma.user.findFirst({ where: { id: args.senderId } }),
                 },
             });
 
             prisma.$disconnect;
         },
 
-        async createUser(data) {
+        async createUser(_parent, args, _contextValue, _info) {
             await prisma.user.create({
                 data: {
-                    email: data.email,
-                    displayName: data.displayName,
-                    displayColour: data.displayColour,
+                    email: args.email,
+                    displayName: args.displayName,
+                    displayColour: args.displayColour,
                 },
             });
 
             return await prisma.user.findFirst({
                 take: 1,
                 where: {
-                    email: data.email,
+                    email: args.email,
                 },
             });
         },
