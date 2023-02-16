@@ -11,4 +11,4 @@ yarn-error.log
 
 dist
 
-dev.db
+dev.sqlite3

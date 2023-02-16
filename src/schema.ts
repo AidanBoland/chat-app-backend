@@ -33,7 +33,9 @@ export const typeDefs = `#graphql
         ): Message
 
         createUser (
-            email: String!
+           email: String!
+           displayName: String!
+           displayColour: String!
         ): User
     }
 
@@ -67,7 +69,7 @@ export const resolvers = {
             });
 
             if (!userFound) {
-                return { user: null };
+                return;
             }
 
             return userFound;
@@ -103,6 +105,23 @@ export const resolvers = {
             });
 
             prisma.$disconnect;
+        },
+
+        async createUser(data) {
+            await prisma.user.create({
+                data: {
+                    email: data.email,
+                    displayName: data.displayName,
+                    displayColour: data.displayColour,
+                },
+            });
+
+            return await prisma.user.findFirst({
+                take: 1,
+                where: {
+                    email: data.email,
+                },
+            });
         },
     },
 
